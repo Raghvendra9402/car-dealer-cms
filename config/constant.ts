@@ -1,4 +1,4 @@
-import { Plan } from "./types";
+"use client";
 
 export const PAGINATION = {
   DEFAULT_PAGE: 1,

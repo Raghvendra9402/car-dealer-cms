@@ -1,18 +1,13 @@
+import "server-only";
 import { PAGINATION } from "@/config/constant";
-import {
-  parseAsInteger,
-  parseAsString,
-  parseAsStringEnum,
-  parseAsStringLiteral,
-} from "nuqs";
+import { parseAsInteger, parseAsString, parseAsStringEnum } from "nuqs/server";
 import {
   BodyType,
-  MakeName,
   ModelFuelType,
   ModelTransMission,
 } from "@/lib/generated/prisma/client";
 
-export const listingParams = {
+export const listingParamsServer = {
   page: parseAsInteger
     .withDefault(PAGINATION.DEFAULT_PAGE)
     .withOptions({ clearOnDefault: true }),
@@ -20,10 +15,8 @@ export const listingParams = {
     .withDefault(PAGINATION.DEFAULT_PAGE_SIZE)
     .withOptions({ clearOnDefault: true }),
   search: parseAsString.withDefault("").withOptions({ clearOnDefault: true }),
-
   makeId: parseAsString.withOptions({ clearOnDefault: true }),
   modelId: parseAsString.withOptions({ clearOnDefault: true }),
-
   transmission: parseAsStringEnum<ModelTransMission>(
     Object.values(ModelTransMission),
   ).withOptions({ clearOnDefault: true }),
