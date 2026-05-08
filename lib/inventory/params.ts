@@ -10,7 +10,7 @@ import {
   MakeName,
   ModelFuelType,
   ModelTransMission,
-} from "../generated/prisma/enums";
+} from "@/lib/generated/prisma/client";
 
 export const listingParams = {
   page: parseAsInteger
