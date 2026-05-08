@@ -1,4 +1,4 @@
-import { Prisma } from "@/lib/generated/prisma/browser";
+import { Prisma } from "@/lib/generated/prisma/client";
 import {
   BodyType,
   MakeName,
