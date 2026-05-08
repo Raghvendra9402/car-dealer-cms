@@ -24,7 +24,7 @@ import {
   ModelFuelType,
   ModelTransMission,
   Role,
-} from "@/lib/generated/prisma/client";
+} from "@/lib/generated/prisma/enums";
 import { TRPCError } from "@trpc/server";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { bucketName, getS3Client } from "@/lib/s3";
