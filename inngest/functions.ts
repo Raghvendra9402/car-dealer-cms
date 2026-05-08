@@ -3,7 +3,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { GoogleGenAI } from "@google/genai";
 import prisma from "@/lib/db";
-import { BodyType, MakeName } from "@/lib/generated/prisma/enums";
+import { BodyType, MakeName } from "@/lib/generated/prisma/client";
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
