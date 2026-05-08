@@ -1,0 +1,295 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  BUYER
+  SELLER
+}
+
+model User {
+  id   String @id @default(uuid())
+  name String
+  role Role? @default(BUYER)
+  email         String
+  emailVerified Boolean      @default(false)
+  stripeCustomerId String?
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  carListings   CarListing[]
+  favourites    Favourites[]
+  reservations Reservation[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+enum ModelTransMission {
+  AUTOMATIC
+  MANUAL
+  AMT
+  CVT
+  DCT
+}
+
+enum ModelFuelType {
+  PETROL
+  DIESEL
+  HYBRID
+  ELECTRIC
+  CNG
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+}
+
+enum BodyType {
+  SEDAN
+  HATCHBACK
+  SUV
+  COUPE
+  CONVERTIBLE
+  PICKUP
+  VAN
+  MINIVAN
+  WAGON
+  SPORTS_CAR
+  CROSSOVER
+  ROADSTER
+  OFF_ROAD
+}
+
+enum MakeName {
+  TOYOTA
+  HONDA
+  HYUNDAI
+  SUZUKI
+  TATA
+  MAHINDRA
+  FORD
+  BMW
+  MERCEDES
+  AUDI
+  VOLKSWAGEN
+  KIA
+  NISSAN
+  TESLA
+  HUMMER
+  BENTLEY
+}
+
+model CarListing {
+  id           String            @id @default(uuid())
+  carYear      Int               @map("car_year")
+  carName      String            @map("car_name")
+  description  String?
+  odometer     Int            @map("odometer_reading")
+  transmission ModelTransMission
+  fuelType     ModelFuelType
+  seats        Int
+  bodyType     BodyType
+
+  makeId String
+  make Make @relation(fields: [makeId], references: [id])
+  
+  modelId String
+  model Model @relation(fields: [modelId], references: [id])
+
+  tags         String[]
+  color        String
+  location     String
+  price        Int
+  status       ListingStatus     @default(ACTIVE)
+
+  images ListingImage[]
+  reservations Reservation[]
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  favourites Favourites[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+
+  @@index([price])
+  @@index([transmission])
+  @@index([fuelType])
+  @@index([location])
+  @@index([odometer])
+  @@index([makeId])
+  @@index([modelId])
+  @@index([bodyType])
+  @@index([tags])
+}
+
+model ListingImage {
+  id       String @id @default(uuid())
+  imageUrl String
+
+  listingId String
+  listing   CarListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+model Favourites {
+  id String @id @default(uuid())
+
+  userId    String
+  listingId String
+
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing CarListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, userId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Subscription {
+  id String @id @default(uuid())
+  plan String
+  referenceId String
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  status String
+  periodStart DateTime?
+  periodEnd DateTime?
+  cancelAtPeriodEnd Boolean?
+  seats Int?
+  trialStart DateTime?
+  trialEnd DateTime?
+}
+
+enum AIResponseStatus {
+  PENDING
+  DONE
+  ERROR
+}
+
+model AIResponse {
+  id String @id @default(uuid())
+  status AIResponseStatus @default(PENDING)
+  result Json?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+}
+
+model Make {
+  id String @id @default(uuid())
+  name MakeName
+
+  models Model[]
+  carListings CarListing[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt  
+}
+
+model Model {
+  id String @id @default(uuid())
+  name String
+
+  makeId String
+  make Make @relation(fields: [makeId], references: [id], onDelete: Cascade)
+
+  carListings CarListing[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([name, makeId])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Reservation {
+  id String @id @default(uuid())
+
+  customerId String
+  customer User @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  listingId String
+  listing CarListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  visitDate DateTime
+
+  mobile String
+
+  status BookingStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingId, visitDate])
+}
