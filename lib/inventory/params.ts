@@ -4,13 +4,13 @@ import {
   parseAsString,
   parseAsStringEnum,
   parseAsStringLiteral,
-} from "nuqs";
+} from "nuqs/server";
 import {
   BodyType,
   MakeName,
   ModelFuelType,
   ModelTransMission,
-} from "@/lib/generated/prisma/client";
+} from "@/lib/generated/prisma/enums";
 
 export const listingParams = {
   page: parseAsInteger
