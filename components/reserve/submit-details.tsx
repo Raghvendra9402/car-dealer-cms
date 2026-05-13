@@ -1,14 +1,16 @@
 "use client";
 
 import { MultiStepFormEnum } from "@/config/types";
-import { authClient } from "@/lib/auth-client";
+import { useReserveCar } from "@/hooks/useCarListings";
+import { formatDate } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
 import {
   Form,
   FormControl,
@@ -18,14 +20,11 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { formatDate } from "@/lib/utils";
-import { useReserveCar } from "@/hooks/useCarListings";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Lastname required"),
-  email: z.email("Email is required"),
+  email: z.string().email("Email is required"),
   mobile: z.string().min(1, "Mobile is required"),
   terms: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms and conditions.",
@@ -35,7 +34,7 @@ const formSchema = z.object({
 type formSchemaType = z.infer<typeof formSchema>;
 
 export function SubmitDetails() {
-  const { data: session } = authClient.useSession();
+  // const { data: session } = authClient.useSession();
   const reserve = useReserveCar();
   const router = useRouter();
   const params = useParams();
