@@ -8,7 +8,7 @@ import { z } from "zod";
 const SubscribeSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  email: z.email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
 });
 
 export const subscribeAction = async (_: any, formData: FormData) => {
