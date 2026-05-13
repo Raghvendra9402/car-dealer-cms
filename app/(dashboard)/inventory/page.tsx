@@ -16,7 +16,7 @@ type Props = {
 
 const page = async ({ searchParams }: Props) => {
   const params = await listingParamsLoader(searchParams);
-  prefetchListings(params);
+  await prefetchListings(params);
 
   return (
     <InventoryContainer>

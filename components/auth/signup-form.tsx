@@ -33,14 +33,14 @@ import Link from "next/link";
 
 const formSchema = z
   .object({
-    email: z.email("Please enter valid email address"),
+    email: z.string().email("Please enter valid email address"),
     fname: z.string().min(1, "First name is required"),
     lname: z.string().optional(),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    error: "Password didn't match",
+    message: "Password didn't match",
     path: ["confirmPassword"],
   });
 
