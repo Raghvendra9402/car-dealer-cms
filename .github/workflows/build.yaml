@@ -33,7 +33,7 @@ jobs:
           OPS_TOKEN: ${{ secrets.OPS_REPO_TOKEN }}
         run: |
           git clone https://github.com/Raghvendra9402/ops-repo.git
-          cd ops-repo-yt
+          cd ops-repo
           sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/car-dealer-cms:.*|image: ${{ secrets.DOCKER_USERNAME }}/car-dealer-cms:${{ github.sha }}|" production/car-dealer-cms/deployment.yml
 
           git config user.name "Github Actions Bot"
