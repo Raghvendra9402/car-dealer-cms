@@ -27,3 +27,17 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/car-dealer-cms:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/car-dealer-cms:${{ github.sha }}
+
+      # - name: clone ops-repo and change the image name
+      #   env:
+      #     OPS_TOKEN: ${{ secrets.OPS_REPO_TOKEN }}
+      #   run: |
+      #     git clone https://github.com/Raghvendra9402/ops-repo.git
+      #     cd ops-repo-yt
+      #     sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/car-dealer-cms:.*|image: ${{ secrets.DOCKER_USERNAME }}/car-dealer-cms:${{ github.sha }}|" production/car-dealer-cms/deployment.yml
+
+      #     git config user.name "Github Actions Bot"
+      #     git config user.email "actions@github.com"
+      #     git add .
+      #     git commit -m "updated the image of deployment"
+      #     git push https://${OPS_TOKEN}@github.com/Raghvendra9402/ops-repo.git main

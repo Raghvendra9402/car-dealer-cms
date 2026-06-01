@@ -96,13 +96,15 @@ export function Footer() {
               ))}
             </ul>
           </div>
-          <NewsLetterForm />
         </div>
         <div className="container mx-auto mt-8 text-center text-gray-700">
           <h4 className="text-lg font-bold text-primary">Company Info</h4>
           <p>RS Motors Pvt. Ltd.</p>
           <p>GSTIN: 12ABCDE3456F1Z5</p>
           <p>Trusted marketplace for buying quality vehicles.</p>
+        </div>
+        <div className="md:ml-auto">
+          <NewsLetterForm />
         </div>
       </div>
     </footer>

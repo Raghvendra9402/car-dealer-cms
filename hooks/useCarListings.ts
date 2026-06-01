@@ -8,6 +8,7 @@ import {
 import { toast } from "sonner";
 import { useListingParams } from "./use-listing-params";
 import { useRouter } from "next/navigation";
+import { sendEmail } from "@/lib/email";
 
 export const useSuspenseListing = () => {
   const trpc = useTRPC();
@@ -171,4 +172,19 @@ export const useGetReservations = () => {
   const trpc = useTRPC();
 
   return useQuery(trpc.carListing.getReservations.queryOptions());
+};
+
+export const useCreateSubscriber = () => {
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.carListing.subscribe.mutationOptions({
+      onSuccess: (data) => {
+        toast.success("Subscribed successfully");
+      },
+      onError: (err) => {
+        toast.error(`Something went wrong: ${err.message}`);
+      },
+    }),
+  );
 };

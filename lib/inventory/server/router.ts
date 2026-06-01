@@ -32,6 +32,7 @@ import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { moveImages } from "@/lib/move-images";
 import { getImageUrl } from "@/lib/get-image-url";
+import { sendEmail } from "@/lib/email";
 
 export const carListingRouter = createTRPCRouter({
   getMany: baseProcedure
@@ -311,7 +312,6 @@ export const carListingRouter = createTRPCRouter({
         },
       });
     }),
-
   reserverCar: protectedProcedure
     .input(
       z.object({
@@ -397,6 +397,70 @@ export const carListingRouter = createTRPCRouter({
       },
     });
   }),
+
+  subscribe: baseProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input }) => {
+      const { email } = input;
+
+      const subscriber = await prisma.subscriber.findFirst({
+        where: {
+          email,
+        },
+      });
+
+      if (subscriber) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Already a subscriber",
+        });
+      }
+
+      const newSubscriber = await prisma.subscriber.create({
+        data: {
+          email,
+        },
+      });
+
+      await sendEmail({
+        to: newSubscriber.email,
+        subject: "Subscribed successfully",
+        html: `
+            <div style="font-family: Arial, sans-serif; padding: 24px; color: #111827;">
+              <h1 style="color: #2563eb;">
+                Welcome to RS Motors
+              </h1>
+
+              <p>
+                Thank you for subscribing to our newsletter.
+              </p>
+
+              <p>
+                You'll now receive:
+              </p>
+
+              <ul>
+                <li>New car listings</li>
+                <li>Marketplace updates</li>
+                <li>Special offers</li>
+                <li>Latest vehicle news</li>
+              </ul>
+
+              <p>
+                Stay tuned for upcoming listings 🚗
+              </p>
+
+              <hr style="margin: 24px 0;" />
+
+              <p style="font-size: 12px; color: #6b7280;">
+                RS Motors Pvt. Ltd.
+              </p>
+            </div>
+          `,
+      });
+
+      return newSubscriber;
+    }),
 });
 
 export const adminRouter = createTRPCRouter({
