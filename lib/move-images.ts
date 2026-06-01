@@ -6,7 +6,7 @@ type MoveImages = {
   keys: string[];
 };
 
-const bucketName = process.env.BUCKET_NAME;
+const bucketName = process.env.S3_BUCKET_NAME;
 
 if (!bucketName) {
   throw new Error("BUCKET_NAME env variable is missing");
