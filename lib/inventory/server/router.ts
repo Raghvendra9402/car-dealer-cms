@@ -33,6 +33,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { moveImages } from "@/lib/move-images";
 import { getImageUrl } from "@/lib/get-image-url";
 import { sendEmail } from "@/lib/email";
+import { getLogger } from "@/lib/logger";
+
+const logger = getLogger();
 
 export const carListingRouter = createTRPCRouter({
   getMany: baseProcedure
@@ -185,7 +188,7 @@ export const carListingRouter = createTRPCRouter({
       }
 
       await getRedis().set(key, favourites, {
-        ex: 60 * 60 * 24 * 30, // 30 days
+        ex: 60 * 60 * 24 * 30,
       });
 
       return {
@@ -322,6 +325,14 @@ export const carListingRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const { listingId, mobile, reserveDate } = input;
+      logger.info(
+        {
+          userId: ctx.auth.user.id,
+          listingId,
+          reserveDate,
+        },
+        "Reservation attempt",
+      );
       const listing = await prisma.carListing.findUnique({
         where: {
           id: listingId,
@@ -340,6 +351,13 @@ export const carListingRouter = createTRPCRouter({
         });
       }
       if (listing.status === "SOLD") {
+        logger.warn(
+          {
+            userId: ctx.auth.user.id,
+            listingId,
+          },
+          "Reservation attempted on sold car",
+        );
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "This car is already sold",
@@ -357,6 +375,13 @@ export const carListingRouter = createTRPCRouter({
       });
 
       if (existingReservation) {
+        logger.warn(
+          {
+            reserveDate,
+            listingId,
+          },
+          "Reservation slot conflict",
+        );
         throw new TRPCError({
           code: "CONFLICT",
           message: "This slot is already booked",
@@ -374,13 +399,20 @@ export const carListingRouter = createTRPCRouter({
       });
 
       if (alreadyReserved) {
+        logger.warn(
+          {
+            userId: ctx.auth.user.id,
+            listingId,
+          },
+          "Duplicate reservation attempt",
+        );
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "You already have a reservation for this car",
         });
       }
 
-      return await prisma.reservation.create({
+      const reservation = await prisma.reservation.create({
         data: {
           listingId,
           customerId: ctx.auth.user.id,
@@ -388,6 +420,17 @@ export const carListingRouter = createTRPCRouter({
           visitDate: reserveDate,
         },
       });
+
+      logger.info(
+        {
+          userId: ctx.auth.user.id,
+          listingId,
+          reservationId: reservation.id,
+        },
+        "Reservation created",
+      );
+
+      return reservation;
     }),
 
   getReservations: protectedProcedure.query(async ({ ctx }) => {
@@ -410,6 +453,12 @@ export const carListingRouter = createTRPCRouter({
       });
 
       if (subscriber) {
+        logger.warn(
+          {
+            email,
+          },
+          "Duplicate newsletter subscription",
+        );
         throw new TRPCError({
           code: "CONFLICT",
           message: "Already a subscriber",
@@ -421,6 +470,13 @@ export const carListingRouter = createTRPCRouter({
           email,
         },
       });
+
+      logger.info(
+        {
+          email,
+        },
+        "Newsletter subscriber added",
+      );
 
       await sendEmail({
         to: newSubscriber.email,
@@ -564,6 +620,17 @@ export const adminRouter = createTRPCRouter({
         bodyType,
         seats,
       } = input;
+
+      logger.info(
+        {
+          adminId: ctx.auth.user.id,
+          makeId,
+          modelName,
+          price,
+        },
+        "Creating car listing",
+      );
+
       const listing = await prisma.$transaction(async (tx) => {
         // Create the listing
         const normalizedModelName = modelName.trim().toLowerCase();
@@ -622,6 +689,14 @@ export const adminRouter = createTRPCRouter({
           include: { images: true },
         });
       });
+
+      logger.info(
+        {
+          listingId: listing?.id,
+          sellerId: ctx.auth.user.id,
+        },
+        "Car listing created",
+      );
 
       return listing;
     }),

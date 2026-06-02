@@ -4,7 +4,7 @@ let _redis: Redis | null = null;
 
 export function getRedis(): Redis {
   if (!_redis) {
-    _redis = Redis.fromEnv(); // Only called at request time
+    _redis = Redis.fromEnv();
   }
   return _redis;
 }

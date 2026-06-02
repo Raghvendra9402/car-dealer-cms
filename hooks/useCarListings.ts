@@ -1,3 +1,4 @@
+import { getLogger } from "@/lib/logger";
 import { useTRPC } from "@/trpc/client";
 import {
   useMutation,
@@ -5,10 +6,9 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useListingParams } from "./use-listing-params";
-import { useRouter } from "next/navigation";
-import { sendEmail } from "@/lib/email";
 
 export const useSuspenseListing = () => {
   const trpc = useTRPC();
@@ -30,6 +30,7 @@ export const useSuspenseListing = () => {
 export const useAddFavourite = () => {
   const queryClient = useQueryClient();
   const trpc = useTRPC();
+  const logger = getLogger();
 
   return useMutation(
     trpc.carListing.addFavourite.mutationOptions({
@@ -74,7 +75,7 @@ export const usePutImageS3 = () => {
 
   return useMutation(
     trpc.s3.putImage.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (data) => {
         toast.success("Images upload successfully");
       },
       onError: () => {
@@ -179,7 +180,7 @@ export const useCreateSubscriber = () => {
 
   return useMutation(
     trpc.carListing.subscribe.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast.success("Subscribed successfully");
       },
       onError: (err) => {

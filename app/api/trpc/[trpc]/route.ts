@@ -6,11 +6,13 @@ import {
   requestCounter,
   trpcRequestsDurationHistogram,
 } from "@/lib/metrics";
+import { getLogger } from "@/lib/logger";
 const handler = async (req: Request) => {
   const start = performance.now();
   const method = req.method;
   const url = new URL(req.url);
   const path = url.pathname.split("/api/trpc/")[1] || "unknown";
+  const logger = getLogger();
   let statusCode = "500";
 
   activeRequestsGauge.inc({ method });
@@ -33,7 +35,14 @@ const handler = async (req: Request) => {
       trpcRequestsDurationHistogram.observe({ method, route: path }, duration);
       activeRequestsGauge.dec({ method });
     } catch (e) {
-      console.error("Metrics observe failed:", e);
+      logger.error(
+        {
+          event: "metrics.observation_failed",
+          statusCode: statusCode,
+          error: e instanceof Error ? e.message : String(e),
+        },
+        "Metrics observe failed",
+      );
     }
   }
 };
