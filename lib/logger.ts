@@ -1,8 +1,11 @@
-export function getLogger() {
+import { Logger } from "pino";
+
+export function getLogger(): Logger {
   if (!globalThis.logger) {
-    throw new Error(
-      "Logger not initialized — ensure instrumentation.ts has run",
-    );
+    const pino = require("pino");
+    return (globalThis.logger = pino({
+      level: process.env.LOG_LEVEL ?? "info",
+    }));
   }
 
   return globalThis.logger;
