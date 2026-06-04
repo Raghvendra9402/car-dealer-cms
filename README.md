@@ -28,7 +28,17 @@ A production-grade car marketplace platform with a dual-console architecture —
 
 ![Request Duration](./docs/grafana-request-duration.png)
 
-> Loki log dashboards coming soon
+### Grafana Loki — Centralized Application Logs
+
+Structured application, security, and business-event logs collected from Kubernetes pods through Promtail and queried in Grafana using Loki.
+
+![Loki Logs](./docs/grafana-loki-logs.png)
+
+### Amazon S3 — Loki Object Storage Backend
+
+Loki stores log indexes and chunks in Amazon S3 using EKS Pod Identity, providing durable and scalable log retention without static AWS credentials.
+
+![Loki S3 Storage](./docs/loki-s3-storage.png)
 
 ---
 
