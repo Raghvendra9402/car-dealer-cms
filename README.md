@@ -8,6 +8,14 @@ A production-grade car marketplace platform with a dual-console architecture —
 
 ## Screenshots
 
+### ArgoCD — Application Layers
+
+![ArgoCD App](./docs/argocd-app.png)
+
+### ArgoCD — SSL/TLS Layer
+
+![ArgoCD App](./docs/argocd-app-tls.png)
+
 ### Grafana — Node Exporter (CPU / Memory / Disk)
 
 ![Node Exporter Dashboard](./docs/grafana-node-exporter.png)
